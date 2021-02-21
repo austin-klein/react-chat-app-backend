@@ -1,21 +1,27 @@
 const express = require('express');
-const socketio = require('socket.io');
+
 const http = require('http');
 const cors = require('cors');
-
+const app = express();
+const server = http.createServer(app);
+const io = require('socket.io')(server, {
+  cors: {
+    origin: '*'
+  }
+});
 const { addUser, removeUser, getUser, getUsersInRoom } = require('./users.js');
 
 const PORT = process.env.PORT || 5000;
 
 const router = require('./router');
 
-const app = express();
-
-const server = http.createServer(app);
-const io = socketio(server);
-
 app.use(router);
 app.use(cors());
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  next();
+});
+
 
 io.on('connection', (socket) => {
   console.log('new connection');
